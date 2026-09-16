@@ -15,7 +15,8 @@
     "db:check": "drizzle-kit check",
     "db:test": "tsx scripts/check-db.ts",
 
-    "auth:create-admin": "tsx scripts/create-admin.ts"
+    "auth:create-admin": "tsx scripts/create-admin.ts",
+    "rls:test": "tsx scripts/test-rls.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
