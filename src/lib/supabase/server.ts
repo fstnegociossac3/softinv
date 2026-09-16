@@ -19,11 +19,13 @@ export async function createClient() {
               cookieStore.set(name, value, options);
             });
           } catch {
-            // Puede ejecutarse desde un Server Component.
-            // La renovación de sesión se gestionará posteriormente.
+            /*
+             * Puede ejecutarse desde un Server Component.
+             * Proxy se encargará de la renovación.
+             */
           }
         },
       },
-    }
+    },
   );
 }
