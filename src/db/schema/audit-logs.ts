@@ -42,6 +42,12 @@ export const auditLogs = pgTable(
 
     newValues: jsonb("new_values"),
 
+    metadata: jsonb("metadata"),
+
+    requestId: varchar("request_id", {
+      length: 150,
+    }),
+
     ipAddress: varchar("ip_address", {
       length: 64,
     }),
@@ -62,5 +68,14 @@ export const auditLogs = pgTable(
     index("audit_logs_created_at_idx").on(table.createdAt),
 
     index("audit_logs_module_idx").on(table.module),
+
+    index("audit_logs_action_idx").on(table.action),
+
+    index("audit_logs_entity_idx").on(table.entityType, table.entityId),
+
+    index("audit_logs_company_created_idx").on(
+      table.companyId,
+      table.createdAt,
+    ),
   ],
 );

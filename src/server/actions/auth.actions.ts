@@ -3,11 +3,14 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
+import { AUDIT_ACTIONS, AUDIT_MODULES } from "@/config/audit";
+
 import { db } from "@/db";
 import { companies, companyUsers, profiles } from "@/db/schema";
 
 import { loginSchema } from "@/lib/validations/auth";
 import { createClient } from "@/lib/supabase/server";
+
 import { createAuditLog } from "@/server/services/audit.service";
 import { getCurrentAuthContext } from "@/server/services/auth.service";
 
@@ -86,8 +89,8 @@ export async function loginAction(formData: FormData) {
 
     userId,
 
-    module: "auth",
-    action: "login",
+    module: AUDIT_MODULES.AUTH,
+    action: AUDIT_ACTIONS.LOGIN,
 
     entityType: "user",
     entityId: userId,
@@ -100,17 +103,25 @@ export async function logoutAction() {
   const context = await getCurrentAuthContext();
 
   if (context) {
-    await createAuditLog({
-      companyId: context.company?.id ?? null,
+    try {
+      await createAuditLog({
+        companyId: context.company?.id ?? null,
 
-      userId: context.userId,
+        userId: context.userId,
 
-      module: "auth",
-      action: "logout",
+        module: AUDIT_MODULES.AUTH,
+        action: AUDIT_ACTIONS.LOGOUT,
 
-      entityType: "user",
-      entityId: context.userId,
-    });
+        entityType: "user",
+        entityId: context.userId,
+      });
+    } catch (error) {
+      console.error("Error registrando auditoría de logout:", error);
+
+      if (error && typeof error === "object" && "cause" in error) {
+        console.error("Causa PostgreSQL:", error.cause);
+      }
+    }
   }
 
   const supabase = await createClient();
