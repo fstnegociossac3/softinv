@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --ALTER TABLE public.inventory_imports
-ENABLE ROW LEVEL SECURITY;
+/* ENABLE ROW LEVEL SECURITY; */
 
 ALTER TABLE public.inventory_import_rows ENABLE ROW LEVEL SECURITY;
 

@@ -27,3 +27,8 @@ export const inventoryImportSourceEnum = pgEnum("inventory_import_source", [
   "xls",
   "csv",
 ]);
+
+export const inventoryItemStatusEnum = pgEnum("inventory_item_status", [
+  "active",
+  "inactive",
+]);

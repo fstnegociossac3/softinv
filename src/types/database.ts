@@ -1,5 +1,12 @@
 /* import { PERMISSIONS } from "@/config/permissions"; */
-import { auditLogs, companies, companyUsers, profiles } from "@/db/schema";
+import {
+  auditLogs,
+  companies,
+  companyUsers,
+  inventoryItems,
+  inventoryItemSnapshots,
+  profiles,
+} from "@/db/schema";
 
 export type Company = typeof companies.$inferSelect;
 
@@ -12,3 +19,12 @@ export type NewProfile = typeof profiles.$inferInsert;
 export type CompanyUser = typeof companyUsers.$inferSelect;
 
 export type AuditLog = typeof auditLogs.$inferSelect;
+
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+
+export type NewInventoryItem = typeof inventoryItems.$inferInsert;
+
+export type InventoryItemSnapshot = typeof inventoryItemSnapshots.$inferSelect;
+
+export type NewInventoryItemSnapshot =
+  typeof inventoryItemSnapshots.$inferInsert;

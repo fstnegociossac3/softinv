@@ -36,6 +36,20 @@
       "when": 1789665448174,
       "tag": "0004_rls_inventory_imports",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789683466742,
+      "tag": "0005_flawless_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789688576524,
+      "tag": "0006_rls_inventory",
+      "breakpoints": true
     }
   ]
 }
