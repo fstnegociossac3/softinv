@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
@@ -23,7 +25,7 @@ export type AuthContext = {
   } | null;
 };
 
-export async function getCurrentAuthContext(): Promise<AuthContext | null> {
+async function loadCurrentAuthContext(): Promise<AuthContext | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.getClaims();
@@ -37,12 +39,17 @@ export async function getCurrentAuthContext(): Promise<AuthContext | null> {
   const [result] = await db
     .select({
       profileId: profiles.id,
+
       fullName: profiles.fullName,
+
       role: profiles.role,
+
       profileStatus: profiles.status,
 
       companyId: companies.id,
+
       companyName: companies.name,
+
       companyStatus: companies.status,
     })
     .from(profiles)
@@ -60,7 +67,10 @@ export async function getCurrentAuthContext(): Promise<AuthContext | null> {
   }
 
   /*
-   * El administrador puede no tener empresa.
+   * ADMIN
+   *
+   * Puede existir sin empresa
+   * asignada.
    */
   if (result.role === "admin") {
     return {
@@ -76,7 +86,9 @@ export async function getCurrentAuthContext(): Promise<AuthContext | null> {
       company: result.companyId
         ? {
             id: result.companyId,
+
             name: result.companyName!,
+
             status: result.companyStatus!,
           }
         : null,
@@ -84,8 +96,10 @@ export async function getCurrentAuthContext(): Promise<AuthContext | null> {
   }
 
   /*
-   * Un usuario normal sí debe
-   * pertenecer a una empresa activa.
+   * USER
+   *
+   * Debe tener empresa
+   * y esta debe estar activa.
    */
   if (!result.companyId || result.companyStatus !== "active") {
     return null;
@@ -96,20 +110,32 @@ export async function getCurrentAuthContext(): Promise<AuthContext | null> {
 
     profile: {
       id: result.profileId,
+
       fullName: result.fullName,
+
       role: result.role,
+
       status: result.profileStatus,
     },
 
     company: {
       id: result.companyId,
+
       name: result.companyName!,
+
       status: result.companyStatus!,
     },
   };
 }
 
-export async function requireAuth() {
+/*
+ * React cache evita repetir
+ * la consulta de autenticación
+ * dentro de la misma request.
+ */
+export const getCurrentAuthContext = cache(loadCurrentAuthContext);
+
+export async function requireAuth(): Promise<AuthContext> {
   const context = await getCurrentAuthContext();
 
   if (!context) {
@@ -119,7 +145,7 @@ export async function requireAuth() {
   return context;
 }
 
-export async function requireAdmin() {
+export async function requireAdmin(): Promise<AuthContext> {
   const context = await requireAuth();
 
   if (context.profile.role !== "admin") {

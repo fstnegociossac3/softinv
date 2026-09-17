@@ -19,6 +19,7 @@ export const PERMISSIONS = {
   // Importaciones
   IMPORT_VIEW: "import.view",
   IMPORT_CREATE: "import.create",
+  IMPORT_PROCESS: "import.process",
 
   // Inventario
   INVENTORY_VIEW: "inventory.view",
@@ -62,8 +63,7 @@ export const PERMISSIONS = {
   AUDIT_VIEW: "audit.view",
 } as const;
 
-export type Permission =
-  (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export type AppRole = "admin" | "user";
 
@@ -73,6 +73,7 @@ const USER_PERMISSIONS: readonly Permission[] = [
 
   PERMISSIONS.IMPORT_VIEW,
   PERMISSIONS.IMPORT_CREATE,
+  PERMISSIONS.IMPORT_PROCESS,
 
   PERMISSIONS.INVENTORY_VIEW,
   PERMISSIONS.INVENTORY_CREATE,
@@ -99,13 +100,9 @@ const USER_PERMISSIONS: readonly Permission[] = [
   PERMISSIONS.REPORT_EXPORT,
 ];
 
-const ADMIN_PERMISSIONS: readonly Permission[] =
-  Object.values(PERMISSIONS);
+const ADMIN_PERMISSIONS: readonly Permission[] = Object.values(PERMISSIONS);
 
-export const ROLE_PERMISSIONS: Record<
-  AppRole,
-  readonly Permission[]
-> = {
+export const ROLE_PERMISSIONS: Record<AppRole, readonly Permission[]> = {
   admin: ADMIN_PERMISSIONS,
   user: USER_PERMISSIONS,
 };

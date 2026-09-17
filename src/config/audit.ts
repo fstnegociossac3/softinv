@@ -3,6 +3,7 @@ export const AUDIT_MODULES = {
   COMPANIES: "companies",
   USERS: "users",
   IMPORTS: "imports",
+  FAIL: "fail",
   INVENTORY: "inventory",
   ANALYSIS: "analysis",
   IRI: "iri",

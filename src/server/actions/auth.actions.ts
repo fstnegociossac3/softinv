@@ -96,6 +96,10 @@ export async function loginAction(formData: FormData) {
     entityId: userId,
   });
 
+  if (account.role === "admin") {
+    redirect("/admin");
+  }
+
   redirect("/dashboard");
 }
 

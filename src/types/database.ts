@@ -1,4 +1,4 @@
-import { PERMISSIONS } from "@/config/permissions";
+/* import { PERMISSIONS } from "@/config/permissions"; */
 import { auditLogs, companies, companyUsers, profiles } from "@/db/schema";
 
 export type Company = typeof companies.$inferSelect;

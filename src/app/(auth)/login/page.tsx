@@ -36,6 +36,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const context = await getCurrentAuthContext();
 
   if (context) {
+    if (context.profile.role === "admin") {
+      redirect("/admin");
+    }
+
     redirect("/dashboard");
   }
 
