@@ -142,10 +142,13 @@ export async function getInventoryImportRows(
 
   requirePermission(auth, PERMISSIONS.IMPORT_VIEW);
 
+  const page = Math.max(filters.page ?? 1, 1);
+
+  const pageSize = Math.min(Math.max(filters.pageSize ?? 50, 1), 100);
+
   const [importRecord] = await db
     .select({
       id: inventoryImports.id,
-
       companyId: inventoryImports.companyId,
     })
     .from(inventoryImports)
@@ -156,14 +159,12 @@ export async function getInventoryImportRows(
     return {
       data: [],
       total: 0,
+      page,
+      pageSize,
     };
   }
 
   requireCompanyAccess(auth, importRecord.companyId);
-
-  const page = Math.max(filters.page ?? 1, 1);
-
-  const pageSize = Math.min(Math.max(filters.pageSize ?? 50, 1), 100);
 
   const conditions = [eq(inventoryImportRows.importId, importId)];
 
@@ -192,9 +193,7 @@ export async function getInventoryImportRows(
 
   return {
     data: rows,
-
     total: total[0]?.total ?? 0,
-
     page,
     pageSize,
   };

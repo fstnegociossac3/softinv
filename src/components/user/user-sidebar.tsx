@@ -1,10 +1,15 @@
 "use client";
 
 import Link from "next/link";
-
 import { usePathname } from "next/navigation";
 
-import { CarFront, LayoutDashboard, LogOut, Building2 } from "lucide-react";
+import {
+  Building2,
+  CarFront,
+  LayoutDashboard,
+  LogOut,
+  Upload,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -14,11 +19,8 @@ import { logoutAction } from "@/server/actions/auth.actions";
 
 type UserSidebarProps = {
   fullName: string;
-
   companyName: string;
-
   className?: string;
-
   onNavigate?: () => void;
 };
 
@@ -27,6 +29,11 @@ const userNavigation = [
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Importaciones",
+    href: "/imports",
+    icon: Upload,
   },
 ];
 
