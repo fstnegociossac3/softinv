@@ -10,3 +10,4 @@ export * from "./inventory-import-rows";
 
 export * from "./inventory-items";
 export * from "./inventory-item-snapshots";
+export * from "./inventory-movements";

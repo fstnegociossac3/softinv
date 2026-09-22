@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 
 import {
   Building2,
   CarFront,
+  ChartNoAxesCombined,
   LayoutDashboard,
+  Lightbulb,
   LogOut,
+  Package,
   Upload,
 } from "lucide-react";
 
@@ -19,21 +23,51 @@ import { logoutAction } from "@/server/actions/auth.actions";
 
 type UserSidebarProps = {
   fullName: string;
+
   companyName: string;
+
   className?: string;
+
   onNavigate?: () => void;
 };
 
 const userNavigation = [
   {
     title: "Dashboard",
+
     href: "/dashboard",
+
     icon: LayoutDashboard,
   },
+
   {
     title: "Importaciones",
+
     href: "/imports",
+
     icon: Upload,
+  },
+
+  {
+    title: "Inventario",
+
+    href: "/inventory",
+
+    icon: Package,
+  },
+  {
+    title: "Análisis IRI",
+
+    href: "/iri",
+
+    icon: ChartNoAxesCombined,
+  },
+  {
+    title: "Recomendaciones",
+
+    href: "/recommendations",
+
+    icon: Lightbulb,
   },
 ];
 
@@ -63,6 +97,7 @@ export function UserSidebar({
       )}
     >
       {/* LOGO */}
+
       <div className="flex h-20 items-center border-b border-slate-200 px-6">
         <Link
           href="/dashboard"
@@ -87,6 +122,7 @@ export function UserSidebar({
       </div>
 
       {/* EMPRESA */}
+
       <div className="px-4 pt-5">
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
           <div className="flex items-center gap-3">
@@ -108,6 +144,7 @@ export function UserSidebar({
       </div>
 
       {/* NAVEGACIÓN */}
+
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
           Menú principal
@@ -127,6 +164,7 @@ export function UserSidebar({
                 onClick={onNavigate}
                 className={cn(
                   "group flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all",
+
                   active
                     ? "bg-[#12365A] text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
@@ -135,6 +173,7 @@ export function UserSidebar({
                 <Icon
                   className={cn(
                     "size-5",
+
                     active
                       ? "text-white"
                       : "text-slate-400 group-hover:text-[#12365A]",
@@ -149,6 +188,7 @@ export function UserSidebar({
       </div>
 
       {/* USUARIO */}
+
       <div className="border-t border-slate-200 p-4">
         <div className="rounded-xl bg-slate-50 p-3">
           <div className="flex items-center gap-3">

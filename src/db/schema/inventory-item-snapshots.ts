@@ -106,6 +106,10 @@ export const inventoryItemSnapshots = pgTable(
 
     index("inventory_snapshots_import_idx").on(table.importId),
 
-    index("inventory_snapshots_captured_at_idx").on(table.capturedAt),
+    index("inventory_snapshots_company_captured_item_idx").on(
+      table.companyId,
+      table.capturedAt,
+      table.inventoryItemId,
+    ),
   ],
 );

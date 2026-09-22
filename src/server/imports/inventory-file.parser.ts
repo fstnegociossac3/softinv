@@ -85,7 +85,18 @@ export async function parseInventoryFile(
   try {
     workbook = XLSX.read(buffer, {
       type: "array",
-      cellDates: true,
+
+      /*
+       * IMPORTANTE:
+       *
+       * Mantenemos los valores numéricos de Excel
+       * como números.
+       *
+       * Las fechas llegarán como seriales de Excel
+       * y inventory-normalizer.ts ya sabe
+       * convertir esos seriales a Date.
+       */
+      cellDates: false,
     });
   } catch {
     throw new DomainError("IMPORT_INVALID_FILE", "No se pudo leer el archivo.");

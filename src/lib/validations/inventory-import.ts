@@ -14,6 +14,8 @@ export const columnMappingSchema = z
 
     brand: z.string().trim().optional(),
 
+    location: z.string().trim().optional(),
+
     lastMovementDate: z.string().trim().optional(),
 
     sales30d: z.string().trim().optional(),

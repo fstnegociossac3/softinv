@@ -35,64 +35,120 @@ type Props = {
 const fields = [
   {
     key: "sku",
+
     label: "SKU / Código",
+
     required: true,
   },
+
   {
     key: "description",
+
     label: "Descripción",
+
     required: true,
   },
+
   {
     key: "stockQuantity",
+
     label: "Stock",
+
     required: true,
   },
+
   {
     key: "unitCost",
+
     label: "Costo unitario",
+
     required: true,
   },
+
   {
     key: "category",
+
     label: "Categoría",
+
     required: false,
   },
+
   {
     key: "brand",
+
     label: "Marca",
+
     required: false,
   },
+
+  {
+    key: "location",
+
+    label: "Ubicación / Almacén",
+
+    required: false,
+  },
+
   {
     key: "lastMovementDate",
+
     label: "Último movimiento",
+
     required: false,
   },
+
   {
     key: "sales30d",
+
     label: "Ventas 30 días",
+
     required: false,
   },
+
   {
     key: "sales90d",
+
     label: "Ventas 90 días",
+
     required: false,
   },
+
   {
     key: "sales180d",
+
     label: "Ventas 180 días",
+
     required: false,
   },
 ] as const;
 
-export function MappingForm({ importId, headers, existingMapping }: Props) {
+export function MappingForm({
+  importId,
+
+  headers,
+
+  existingMapping,
+}: Props) {
   const router = useRouter();
 
-  const suggested = useMemo(() => suggestMapping(headers), [headers]);
+  /*
+   * Sugerencia automática.
+   */
+  const suggested = useMemo(
+    () => suggestMapping(headers),
+
+    [headers],
+  );
 
   const [mapping, setMapping] = useState<Mapping>(existingMapping ?? suggested);
 
   const [loading, setLoading] = useState(false);
+
+  /*
+  |--------------------------------------------------------------------------
+  | APLICAR SUGERENCIAS
+  |--------------------------------------------------------------------------
+  */
 
   function applySuggestions() {
     setMapping(suggestMapping(headers));
@@ -100,26 +156,50 @@ export function MappingForm({ importId, headers, existingMapping }: Props) {
     toast.success("Se aplicaron las sugerencias automáticas.");
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | VALIDAR + IMPORTAR
+  |--------------------------------------------------------------------------
+  */
+
   async function process() {
     const requiredFields = ["sku", "description", "stockQuantity", "unitCost"];
 
+    /*
+     * Campos obligatorios.
+     */
     const missing = requiredFields.filter((field) => !mapping[field]);
 
     if (missing.length) {
       toast.error("Completa todos los campos obligatorios.");
+
       return;
     }
 
+    /*
+     * Evitar usar la misma
+     * columna dos veces.
+     */
     const selectedColumns = Object.values(mapping).filter(Boolean);
 
     if (new Set(selectedColumns).size !== selectedColumns.length) {
       toast.error("Una columna del archivo no puede utilizarse dos veces.");
+
       return;
     }
 
     try {
       setLoading(true);
 
+      /*
+       * Este endpoint ahora:
+       *
+       * 1. valida
+       * 2. normaliza
+       * 3. crea / actualiza inventario
+       * 4. crea snapshots
+       * 5. crea movimientos
+       */
       const response = await fetch(
         `/api/imports/inventory/${importId}/mapping`,
         {
@@ -141,9 +221,55 @@ export function MappingForm({ importId, headers, existingMapping }: Props) {
         );
       }
 
-      toast.success("Importación validada correctamente.");
+      const validation = result.data?.validation;
 
-      router.push(`/imports/${importId}`);
+      const inventory = result.data?.inventory;
+
+      /*
+      |--------------------------------------------------------------------------
+      | SIN FILAS VÁLIDAS
+      |--------------------------------------------------------------------------
+      */
+
+      if (!inventory) {
+        toast.error(
+          "No se encontraron filas válidas para agregar al inventario.",
+        );
+
+        router.push(`/imports/${importId}`);
+
+        router.refresh();
+
+        return;
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | PROCESADO
+      |--------------------------------------------------------------------------
+      */
+
+      toast.success(
+        `Inventario actualizado: ${inventory.createdItems} productos creados y ${inventory.updatedItems} actualizados.`,
+      );
+
+      /*
+       * Informar filas omitidas.
+       */
+      const omitted =
+        (validation?.invalidRows ?? 0) + (validation?.duplicateRows ?? 0);
+
+      if (omitted > 0) {
+        toast.warning(
+          `${omitted} filas fueron omitidas por errores o duplicados.`,
+        );
+      }
+
+      /*
+       * Terminamos directamente
+       * en Inventario.
+       */
+      router.push("/inventory");
 
       router.refresh();
     } catch (error) {
@@ -163,12 +289,16 @@ export function MappingForm({ importId, headers, existingMapping }: Props) {
         <CardTitle>Relacionar columnas</CardTitle>
 
         <CardDescription>
-          Indica qué columna del archivo corresponde a cada campo de
-          RecuperaStock.
+          Indica qué columna del archivo corresponde a cada campo. Al continuar,
+          los registros válidos se cargarán automáticamente en Inventario.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* ================================================================
+            SUGERIR
+        ================================================================= */}
+
         <div className="flex justify-end">
           <Button
             variant="outline"
@@ -179,6 +309,10 @@ export function MappingForm({ importId, headers, existingMapping }: Props) {
             Sugerir automáticamente
           </Button>
         </div>
+
+        {/* ================================================================
+            CAMPOS
+        ================================================================= */}
 
         <div className="grid gap-5 md:grid-cols-2">
           {fields.map((field) => (
@@ -215,15 +349,19 @@ export function MappingForm({ importId, headers, existingMapping }: Props) {
           ))}
         </div>
 
+        {/* ================================================================
+            IMPORTAR
+        ================================================================= */}
+
         <div className="flex justify-end">
           <Button onClick={process} disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
-                Validando...
+                Importando...
               </>
             ) : (
-              "Validar importación"
+              "Validar e importar al inventario"
             )}
           </Button>
         </div>

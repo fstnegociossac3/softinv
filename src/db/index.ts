@@ -17,9 +17,15 @@ const postgresClient =
   globalForDb.postgresClient ??
   postgres(connectionString, {
     prepare: false,
-    max: 1,
+
+    // Antes estaba en 1
+    max: 3,
+
     idle_timeout: 20,
+
     connect_timeout: 10,
+
+    ssl: "require",
   });
 
 if (process.env.NODE_ENV !== "production") {

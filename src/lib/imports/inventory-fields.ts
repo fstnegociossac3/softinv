@@ -1,5 +1,6 @@
 export const INVENTORY_FIELDS = {
   SKU: "sku",
+
   DESCRIPTION: "description",
 
   STOCK: "stockQuantity",
@@ -9,6 +10,8 @@ export const INVENTORY_FIELDS = {
   CATEGORY: "category",
 
   BRAND: "brand",
+
+  LOCATION: "location",
 
   LAST_MOVEMENT_DATE: "lastMovementDate",
 

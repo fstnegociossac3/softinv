@@ -2,20 +2,24 @@ import { createHash } from "node:crypto";
 
 import * as XLSX from "xlsx";
 
-import type { ColumnMapping } from "@/lib/validations/inventory-import";
-
 import type { ImportRowError } from "@/db/schema/inventory-import-rows";
+
+import type { ColumnMapping } from "@/lib/validations/inventory-import";
 
 export type NormalizedInventoryRow = {
   sku: string;
+
   description: string;
 
   stockQuantity: number;
+
   unitCost: number;
 
   category: string | null;
 
   brand: string | null;
+
+  location: string | null;
 
   lastMovementDate: string | null;
 
@@ -58,6 +62,14 @@ function numericValue(value: unknown): number | null {
 
   const dot = normalized.lastIndexOf(".");
 
+  /*
+   * Soportamos:
+   *
+   * 1.250,50
+   * 1,250.50
+   * 1250,50
+   * 1250.50
+   */
   if (comma >= 0 && dot >= 0) {
     if (comma > dot) {
       normalized = normalized.replace(/\./g, "").replace(",", ".");
@@ -74,10 +86,16 @@ function numericValue(value: unknown): number | null {
 }
 
 function dateValue(value: unknown): string | null {
+  /*
+   * Fecha JS
+   */
   if (value instanceof Date) {
     return Number.isNaN(value.getTime()) ? null : value.toISOString();
   }
 
+  /*
+   * Fecha serial de Excel.
+   */
   if (typeof value === "number") {
     const parsed = XLSX.SSF.parse_date_code(value);
 
@@ -86,6 +104,9 @@ function dateValue(value: unknown): string | null {
     }
   }
 
+  /*
+   * Fecha como texto.
+   */
   if (typeof value === "string" && value.trim()) {
     const date = new Date(value.trim());
 
@@ -122,6 +143,12 @@ export function normalizeInventoryRow(
 } {
   const errors: ImportRowError[] = [];
 
+  /*
+  |--------------------------------------------------------------------------
+  | CAMPOS OBLIGATORIOS
+  |--------------------------------------------------------------------------
+  */
+
   const sku = textValue(sourceValue(row, mapping.sku));
 
   const description = textValue(sourceValue(row, mapping.description));
@@ -130,10 +157,18 @@ export function normalizeInventoryRow(
 
   const unitCost = numericValue(sourceValue(row, mapping.unitCost));
 
+  /*
+  |--------------------------------------------------------------------------
+  | VALIDACIONES
+  |--------------------------------------------------------------------------
+  */
+
   if (!sku) {
     errors.push({
       field: "sku",
+
       code: "REQUIRED",
+
       message: "El SKU es obligatorio.",
     });
   }
@@ -141,7 +176,9 @@ export function normalizeInventoryRow(
   if (!description) {
     errors.push({
       field: "description",
+
       code: "REQUIRED",
+
       message: "La descripción es obligatoria.",
     });
   }
@@ -149,13 +186,17 @@ export function normalizeInventoryRow(
   if (stockQuantity === null) {
     errors.push({
       field: "stockQuantity",
+
       code: "INVALID_NUMBER",
+
       message: "El stock debe ser numérico.",
     });
   } else if (stockQuantity < 0) {
     errors.push({
       field: "stockQuantity",
+
       code: "NEGATIVE_VALUE",
+
       message: "El stock no puede ser negativo.",
     });
   }
@@ -163,16 +204,26 @@ export function normalizeInventoryRow(
   if (unitCost === null) {
     errors.push({
       field: "unitCost",
+
       code: "INVALID_NUMBER",
+
       message: "El costo unitario debe ser numérico.",
     });
   } else if (unitCost < 0) {
     errors.push({
       field: "unitCost",
+
       code: "NEGATIVE_VALUE",
+
       message: "El costo unitario no puede ser negativo.",
     });
   }
+
+  /*
+  |--------------------------------------------------------------------------
+  | NORMALIZACIÓN
+  |--------------------------------------------------------------------------
+  */
 
   const data: NormalizedInventoryRow = {
     sku,
@@ -187,6 +238,8 @@ export function normalizeInventoryRow(
 
     brand: optionalText(sourceValue(row, mapping.brand)),
 
+    location: optionalText(sourceValue(row, mapping.location)),
+
     lastMovementDate: dateValue(sourceValue(row, mapping.lastMovementDate)),
 
     sales30d: numericValue(sourceValue(row, mapping.sales30d)),
@@ -195,6 +248,12 @@ export function normalizeInventoryRow(
 
     sales180d: numericValue(sourceValue(row, mapping.sales180d)),
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | FINGERPRINT
+  |--------------------------------------------------------------------------
+  */
 
   const fingerprint = sku
     ? createHash("sha256").update(sku.trim().toUpperCase()).digest("hex")

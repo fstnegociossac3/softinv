@@ -1,10 +1,12 @@
+import { revalidatePath } from "next/cache";
+
 import { NextResponse } from "next/server";
 
 import { columnMappingSchema } from "@/lib/validations/inventory-import";
 
 import { getCurrentAuthContext } from "@/server/services/auth.service";
 
-import { processInventoryImportMapping } from "@/server/services/inventory-import.service";
+import { validateAndProcessInventoryImport } from "@/server/services/inventory-import.service";
 
 import { getActionErrorMessage } from "@/server/utils/action-error";
 
@@ -16,13 +18,18 @@ type RouteContext = {
   }>;
 };
 
-export async function PATCH(request: Request, context: RouteContext) {
+export async function PATCH(
+  request: Request,
+
+  context: RouteContext,
+) {
   const auth = await getCurrentAuthContext();
 
   if (!auth) {
     return NextResponse.json(
       {
         success: false,
+
         message: "No autenticado.",
       },
       {
@@ -35,6 +42,12 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { id } = await context.params;
 
     const body = await request.json();
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDAR MAPPING
+    |--------------------------------------------------------------------------
+    */
 
     const parsed = columnMappingSchema.safeParse(body);
 
@@ -53,16 +66,44 @@ export async function PATCH(request: Request, context: RouteContext) {
       );
     }
 
-    const result = await processInventoryImportMapping(auth, id, parsed.data);
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDAR ARCHIVO + CONSOLIDAR EN INVENTARIO
+    |--------------------------------------------------------------------------
+    */
+
+    const result = await validateAndProcessInventoryImport(
+      auth,
+
+      id,
+
+      parsed.data,
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | REFRESCAR
+    |--------------------------------------------------------------------------
+    */
+
+    revalidatePath("/imports");
+
+    revalidatePath(`/imports/${id}`);
+
+    if (result.inventory) {
+      revalidatePath("/inventory");
+    }
 
     return NextResponse.json({
       success: true,
+
       data: result,
     });
   } catch (error) {
     return NextResponse.json(
       {
         success: false,
+
         message: getActionErrorMessage(error),
       },
       {

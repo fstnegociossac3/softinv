@@ -16,6 +16,8 @@ const aliases: Record<string, string[]> = {
     "codigo de producto",
     "cod producto",
     "cod",
+    "item",
+    "codigo item",
   ],
 
   description: [
@@ -24,6 +26,8 @@ const aliases: Record<string, string[]> = {
     "nombre",
     "nombre producto",
     "descripcion producto",
+    "articulo",
+    "nombre articulo",
   ],
 
   stockQuantity: [
@@ -33,6 +37,8 @@ const aliases: Record<string, string[]> = {
     "existencias",
     "cantidad",
     "saldo",
+    "cantidad actual",
+    "inventario",
   ],
 
   unitCost: [
@@ -41,17 +47,32 @@ const aliases: Record<string, string[]> = {
     "costo promedio",
     "costo prom",
     "precio costo",
+    "coste",
+    "coste unitario",
   ],
 
-  category: ["categoria", "familia", "linea"],
+  category: ["categoria", "familia", "linea", "tipo", "grupo"],
 
-  brand: ["marca", "brand"],
+  brand: ["marca", "brand", "fabricante"],
+
+  location: [
+    "ubicacion",
+    "localizacion",
+    "almacen",
+    "bodega",
+    "sede",
+    "rack",
+    "estante",
+    "ubicacion almacen",
+  ],
 
   lastMovementDate: [
     "ultima fecha movimiento",
     "ultimo movimiento",
     "fecha ultimo movimiento",
     "fecha movimiento",
+    "ultima salida",
+    "fecha ultima salida",
   ],
 
   sales30d: ["ventas 30", "ventas 30d", "ventas 30 dias"],
@@ -64,6 +85,7 @@ const aliases: Record<string, string[]> = {
 export function suggestMapping(headers: string[]) {
   const normalizedHeaders = headers.map((header) => ({
     original: header,
+
     normalized: normalize(header),
   }));
 

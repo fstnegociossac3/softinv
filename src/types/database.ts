@@ -1,10 +1,10 @@
-/* import { PERMISSIONS } from "@/config/permissions"; */
 import {
   auditLogs,
   companies,
   companyUsers,
-  inventoryItems,
   inventoryItemSnapshots,
+  inventoryItems,
+  inventoryMovements,
   profiles,
 } from "@/db/schema";
 
@@ -28,3 +28,7 @@ export type InventoryItemSnapshot = typeof inventoryItemSnapshots.$inferSelect;
 
 export type NewInventoryItemSnapshot =
   typeof inventoryItemSnapshots.$inferInsert;
+
+export type InventoryMovement = typeof inventoryMovements.$inferSelect;
+
+export type NewInventoryMovement = typeof inventoryMovements.$inferInsert;
