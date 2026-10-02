@@ -60,10 +60,10 @@ export function IriSkuSelector({ items, selectedId }: Props) {
       .slice(0, 100);
   }, [items, search]);
 
-  function selectSku(value: string) {
+  function selectSku(value: string | null) {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (value === "none") {
+    if (!value || value === "none") {
       params.delete("skuId");
     } else {
       params.set("skuId", value);

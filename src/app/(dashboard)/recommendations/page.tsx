@@ -284,6 +284,20 @@ export default async function RecommendationsPage({ searchParams }: PageProps) {
         total={result.recommendations.total}
         page={result.recommendations.page}
         pageSize={result.recommendations.pageSize}
+        /*
+         * ADMIN:
+         * enviamos empresa.
+         *
+         * USER:
+         * backend utilizará auth.company.id.
+         */
+        companyId={isAdmin ? result.filters.companyId : undefined}
+        /*
+         * Periodo exacto que produjo
+         * la recomendación.
+         */
+        from={result.filters.from}
+        to={result.filters.to}
       />
     </div>
   );

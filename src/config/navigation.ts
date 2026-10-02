@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   Package,
+  Settings,
   Upload,
   Users,
 } from "lucide-react";
@@ -187,5 +188,39 @@ export const adminNavigationItems: NavigationItem[] = [
     icon: Lightbulb,
 
     permission: PERMISSIONS.RECOMMENDATION_VIEW,
+  },
+  {
+    title: "Seguimiento",
+    href: "/tracking",
+    icon: ClipboardCheck,
+    permission: PERMISSIONS.TRACKING_VIEW,
+  },
+  {
+    title: "Recuperación",
+
+    href: "/recovery",
+
+    icon: CircleDollarSign,
+
+    permission: PERMISSIONS.RECOVERY_VIEW,
+  },
+  {
+    title: "Reportes",
+
+    href: "/reports",
+
+    icon: FileText,
+
+    permission: PERMISSIONS.REPORT_VIEW,
+  },
+
+  {
+    title: "Configuración",
+
+    href: "/settings",
+
+    icon: Settings,
+
+    permission: PERMISSIONS.SETTINGS_VIEW,
   },
 ];

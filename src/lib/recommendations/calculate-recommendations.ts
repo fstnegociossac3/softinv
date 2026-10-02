@@ -1,7 +1,8 @@
-import {
-  RECOMMENDATION_ACTION_LABELS,
-  RECOMMENDATION_RULES,
-} from "@/config/recommendations";
+import { RECOMMENDATION_ACTION_LABELS } from "@/config/recommendations";
+
+import { DEFAULT_RECOMMENDATION_SETTINGS } from "@/lib/settings/defaults";
+
+import type { RecommendationSettingsConfig } from "@/lib/settings/types";
 
 import type { IriItemResult } from "@/lib/iri/types";
 
@@ -37,43 +38,36 @@ function clamp(value: number, min = 0, max = 100) {
 
 export function classifyRecommendation(
   item: IriItemResult,
+
+  config: RecommendationSettingsConfig = DEFAULT_RECOMMENDATION_SETTINGS,
 ): RecommendationAction {
   /*
-   * Inventario con muy baja
-   * recuperabilidad.
+   * Liquidar
    */
-  if (item.iri < RECOMMENDATION_RULES.LIQUIDATE_MAX_IRI) {
+  if (item.iri < config.liquidateMaxIri) {
     return "liquidate";
   }
 
   /*
-   * Recuperabilidad media.
-   *
-   * Todavía tiene posibilidades
-   * comerciales, pero requiere
-   * estímulo.
+   * Ofertar
    */
-  if (item.iri < RECOMMENDATION_RULES.HEALTHY_MIN_IRI) {
+  if (item.iri >= config.offerMinIri && item.iri < config.healthyMinIri) {
     return "offer";
   }
 
   /*
-   * Buen IRI pero demasiados
-   * días de cobertura.
-   *
-   * Significa que el producto
-   * tiene demanda, pero existe
-   * exceso de stock.
+   * Redistribuir
    */
   if (
+    item.iri >= config.healthyMinIri &&
     item.coverageDays !== null &&
-    item.coverageDays > RECOMMENDATION_RULES.REDISTRIBUTE_MIN_COVERAGE_DAYS
+    item.coverageDays > config.redistributeMinCoverageDays
   ) {
     return "redistribute";
   }
 
   /*
-   * Inventario saludable.
+   * Mantener
    */
   return "maintain";
 }
@@ -204,8 +198,10 @@ function calculatePotentialRotation(item: IriItemResult) {
 
 export function calculateRecommendationForItem(
   item: IriItemResult,
+
+  config: RecommendationSettingsConfig = DEFAULT_RECOMMENDATION_SETTINGS,
 ): RecommendationItem {
-  const action = classifyRecommendation(item);
+  const action = classifyRecommendation(item, config);
 
   const rotation = calculatePotentialRotation(item);
 
@@ -343,6 +339,8 @@ function calculateSummary(
 
 export function calculateRecommendations(
   iriItems: IriItemResult[],
+
+  config: RecommendationSettingsConfig = DEFAULT_RECOMMENDATION_SETTINGS,
 ): RecommendationsResult {
   /*
    * Solo analizamos SKU
@@ -350,7 +348,7 @@ export function calculateRecommendations(
    */
   const recommendations = iriItems
     .filter((item) => item.eligible && item.stockQuantity > 0)
-    .map((item) => calculateRecommendationForItem(item));
+    .map((item) => calculateRecommendationForItem(item, config));
 
   return {
     summary: calculateSummary(recommendations),

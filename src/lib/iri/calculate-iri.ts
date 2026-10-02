@@ -1,4 +1,8 @@
-import { IRI_ANALYSIS, IRI_THRESHOLDS, IRI_WEIGHTS } from "@/config/iri";
+import { IRI_ANALYSIS } from "@/config/iri";
+
+import { DEFAULT_IRI_SETTINGS } from "@/lib/settings/defaults";
+
+import type { IriSettingsConfig } from "@/lib/settings/types";
 
 import type {
   IriClassification,
@@ -602,12 +606,16 @@ export function calculateDemandScore(
 |--------------------------------------------------------------------------
 */
 
-export function classifyIri(iri: number): IriClassification {
-  if (iri >= IRI_THRESHOLDS.high) {
+export function classifyIri(
+  iri: number,
+
+  thresholds = DEFAULT_IRI_SETTINGS.thresholds,
+): IriClassification {
+  if (iri >= thresholds.high) {
     return "high";
   }
 
-  if (iri >= IRI_THRESHOLDS.medium) {
+  if (iri >= thresholds.medium) {
     return "medium";
   }
 
@@ -733,8 +741,11 @@ export function calculateIriDashboard(
     periodDays: number;
 
     opportunityLimit?: number;
+
+    config?: IriSettingsConfig;
   },
 ): IriDashboardResult {
+  const config = options.config ?? DEFAULT_IRI_SETTINGS;
   const periodDays = clamp(
     Math.round(options.periodDays),
 
@@ -781,7 +792,7 @@ export function calculateIriDashboard(
       .filter(({ item }) => item.stockQuantity > 0)
       .map(({ estimatedMonthlyDemand }) => estimatedMonthlyDemand),
 
-    IRI_ANALYSIS.DEMAND_REFERENCE_PERCENTILE,
+    config.demandReferencePercentile,
   );
 
   /*
@@ -861,10 +872,10 @@ export function calculateIriDashboard(
        */
       const iri = eligible
         ? round(
-            scores.demand * IRI_WEIGHTS.demand +
-              scores.recency * IRI_WEIGHTS.recency +
-              scores.coverage * IRI_WEIGHTS.coverage +
-              scores.trend * IRI_WEIGHTS.trend,
+            scores.demand * config.weights.demand +
+              scores.recency * config.weights.recency +
+              scores.coverage * config.weights.coverage +
+              scores.trend * config.weights.trend,
           )
         : 0;
 
@@ -895,7 +906,7 @@ export function calculateIriDashboard(
 
         iri,
 
-        classification: classifyIri(iri),
+        classification: classifyIri(iri, config.thresholds),
 
         /*
          * Valor recuperable
@@ -943,7 +954,7 @@ export function calculateIriDashboard(
    * Oportunidades.
    */
   const opportunityItems = eligibleItems
-    .filter((item) => item.iri >= IRI_ANALYSIS.OPPORTUNITY_MIN_IRI)
+    .filter((item) => item.iri >= config.opportunityMinIri)
     .sort((a, b) => {
       if (b.opportunityValue !== a.opportunityValue) {
         return b.opportunityValue - a.opportunityValue;

@@ -154,7 +154,7 @@ export function IriFilters({
             <Select
               value={companyId || "none"}
               onValueChange={(value) =>
-                setCompanyId(value === "none" ? "" : value)
+                setCompanyId(!value || value === "none" ? "" : value)
               }
             >
               <SelectTrigger className="h-10 w-full">

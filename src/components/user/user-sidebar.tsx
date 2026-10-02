@@ -8,11 +8,15 @@ import {
   Building2,
   CarFront,
   ChartNoAxesCombined,
+  CircleDollarSign,
+  ClipboardCheck,
   LayoutDashboard,
   Lightbulb,
   LogOut,
   Package,
+  Settings,
   Upload,
+  FileText,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -68,6 +72,34 @@ const userNavigation = [
     href: "/recommendations",
 
     icon: Lightbulb,
+  },
+  {
+    title: "Seguimiento",
+
+    href: "/tracking",
+
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Recuperación",
+
+    href: "/recovery",
+
+    icon: CircleDollarSign,
+  },
+  {
+    title: "Reportes",
+
+    href: "/reports",
+
+    icon: FileText,
+  },
+  {
+    title: "Configuración",
+
+    href: "/settings",
+
+    icon: Settings,
   },
 ];
 

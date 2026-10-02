@@ -32,3 +32,77 @@ export const inventoryItemStatusEnum = pgEnum("inventory_item_status", [
   "active",
   "inactive",
 ]);
+
+/*
+|--------------------------------------------------------------------------
+| RECOMENDACIONES
+|--------------------------------------------------------------------------
+|
+| Esta misma clasificación se utiliza
+| posteriormente dentro de Seguimiento.
+|
+*/
+
+export const recommendationActionEnum = pgEnum("recommendation_action", [
+  "maintain",
+  "redistribute",
+  "offer",
+  "liquidate",
+]);
+
+/*
+|--------------------------------------------------------------------------
+| SEGUIMIENTO
+|--------------------------------------------------------------------------
+|
+| VENCIDA NO se almacena.
+|
+| overdue =
+| pending + due_date < hoy
+|
+*/
+
+export const trackingActionStatusEnum = pgEnum("tracking_action_status", [
+  "pending",
+  "executed",
+]);
+
+/*
+|--------------------------------------------------------------------------
+| ACTIVIDADES DEL SEGUIMIENTO
+|--------------------------------------------------------------------------
+*/
+
+export const trackingActivityTypeEnum = pgEnum("tracking_activity_type", [
+  "created",
+  "due_date_changed",
+  "note_added",
+  "executed",
+  "updated",
+]);
+
+/*
+|--------------------------------------------------------------------------
+| RECUPERACIÓN
+|--------------------------------------------------------------------------
+*/
+
+export const recoveryCaseStatusEnum = pgEnum("recovery_case_status", [
+  "pending",
+  "in_progress",
+  "recovered",
+  "unrecovered",
+]);
+
+/*
+|--------------------------------------------------------------------------
+| REPORTES
+|--------------------------------------------------------------------------
+*/
+
+export const reportTypeEnum = pgEnum("report_type", [
+  "executive",
+  "critical_inventory",
+  "recommendations",
+  "recovery",
+]);

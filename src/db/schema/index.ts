@@ -11,3 +11,12 @@ export * from "./inventory-import-rows";
 export * from "./inventory-items";
 export * from "./inventory-item-snapshots";
 export * from "./inventory-movements";
+
+export * from "./tracking-actions";
+export * from "./tracking-activities";
+
+export * from "./recovery-cases";
+export * from "./recovery-events";
+
+export * from "./reports";
+export * from "./company-settings";

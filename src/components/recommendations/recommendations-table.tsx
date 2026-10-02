@@ -21,7 +21,15 @@ import {
 
 import { TablePagination } from "@/components/shared/table-pagination";
 
+import { CreateTrackingDialog } from "@/components/recommendations/create-tracking-dialog";
+
 import type { RecommendationItem } from "@/lib/recommendations/types";
+
+/*
+|--------------------------------------------------------------------------
+| PROPS
+|--------------------------------------------------------------------------
+*/
 
 type Props = {
   items: RecommendationItem[];
@@ -31,7 +39,34 @@ type Props = {
   page: number;
 
   pageSize: number;
+
+  /*
+   * ADMIN:
+   * empresa seleccionada.
+   *
+   * USER:
+   * undefined.
+   */
+  companyId?: string;
+
+  /*
+   * Periodo del cálculo.
+   *
+   * Se enviará al backend al crear
+   * el seguimiento para que vuelva
+   * a calcular exactamente la misma
+   * recomendación.
+   */
+  from: string;
+
+  to: string;
 };
+
+/*
+|--------------------------------------------------------------------------
+| FORMATTERS
+|--------------------------------------------------------------------------
+*/
 
 const currencyFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
@@ -42,6 +77,12 @@ const currencyFormatter = new Intl.NumberFormat("es-PE", {
 const numberFormatter = new Intl.NumberFormat("es-PE", {
   maximumFractionDigits: 2,
 });
+
+/*
+|--------------------------------------------------------------------------
+| BADGE RECOMENDACIÓN
+|--------------------------------------------------------------------------
+*/
 
 function ActionBadge({ action }: { action: RecommendationItem["action"] }) {
   switch (action) {
@@ -79,6 +120,12 @@ function ActionBadge({ action }: { action: RecommendationItem["action"] }) {
   }
 }
 
+/*
+|--------------------------------------------------------------------------
+| COLOR IRI
+|--------------------------------------------------------------------------
+*/
+
 function iriClass(iri: number) {
   if (iri >= 75) {
     return "text-emerald-600";
@@ -91,7 +138,27 @@ function iriClass(iri: number) {
   return "text-red-600";
 }
 
-export function RecommendationsTable({ items, total, page, pageSize }: Props) {
+/*
+|--------------------------------------------------------------------------
+| TABLA
+|--------------------------------------------------------------------------
+*/
+
+export function RecommendationsTable({
+  items,
+  total,
+  page,
+  pageSize,
+  companyId,
+  from,
+  to,
+}: Props) {
+  /*
+  |--------------------------------------------------------------------------
+  | ESTADO VACÍO
+  |--------------------------------------------------------------------------
+  */
+
   if (!items.length) {
     return (
       <Card className="bg-white">
@@ -118,6 +185,10 @@ export function RecommendationsTable({ items, total, page, pageSize }: Props) {
 
   return (
     <Card className="bg-white">
+      {/* ================================================================
+          HEADER
+      ================================================================= */}
+
       <CardHeader className="border-b border-slate-100">
         <CardTitle>Recomendaciones por SKU</CardTitle>
 
@@ -127,116 +198,167 @@ export function RecommendationsTable({ items, total, page, pageSize }: Props) {
         </p>
       </CardHeader>
 
+      {/* ================================================================
+          TABLA
+      ================================================================= */}
+
       <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>SKU / Producto</TableHead>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>SKU / Producto</TableHead>
 
-              <TableHead>IRI</TableHead>
+                <TableHead>IRI</TableHead>
 
-              <TableHead>Recomendación</TableHead>
+                <TableHead>Recomendación</TableHead>
 
-              <TableHead className="text-right">Stock</TableHead>
+                <TableHead className="text-right">Stock</TableHead>
 
-              <TableHead className="text-right">Valor stock</TableHead>
+                <TableHead className="text-right">Valor stock</TableHead>
 
-              <TableHead className="text-right">Cobertura</TableHead>
+                <TableHead className="text-right">Cobertura</TableHead>
 
-              <TableHead className="text-right">Rotación potencial</TableHead>
+                <TableHead className="text-right">Rotación potencial</TableHead>
 
-              <TableHead className="min-w-[300px]">Motivo</TableHead>
-            </TableRow>
-          </TableHeader>
+                <TableHead className="min-w-[300px]">Motivo</TableHead>
 
-          <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                {/* SKU */}
-
-                <TableCell className="min-w-[240px]">
-                  <p className="font-semibold text-slate-900">{item.sku}</p>
-
-                  <p className="mt-0.5 max-w-[280px] truncate text-xs text-slate-500">
-                    {item.description}
-                  </p>
-
-                  <div className="mt-1 flex flex-wrap gap-x-2 text-[11px] text-slate-400">
-                    {item.category ? <span>{item.category}</span> : null}
-
-                    {item.brand ? (
-                      <>
-                        <span>•</span>
-
-                        <span>{item.brand}</span>
-                      </>
-                    ) : null}
-                  </div>
-                </TableCell>
-
-                {/* IRI */}
-
-                <TableCell>
-                  <span className={`text-lg font-bold ${iriClass(item.iri)}`}>
-                    {item.iri}
-                  </span>
-
-                  <span className="text-xs text-slate-400">/100</span>
-                </TableCell>
-
-                {/* ACCIÓN */}
-
-                <TableCell>
-                  <ActionBadge action={item.action} />
-                </TableCell>
-
-                {/* STOCK */}
-
-                <TableCell className="text-right font-medium">
-                  {numberFormatter.format(item.stockQuantity)}
-                </TableCell>
-
-                {/* VALOR */}
-
-                <TableCell className="text-right font-semibold">
-                  {currencyFormatter.format(item.stockValue)}
-                </TableCell>
-
-                {/* COBERTURA */}
-
-                <TableCell className="text-right">
-                  {item.coverageDays !== null
-                    ? `${numberFormatter.format(item.coverageDays)} días`
-                    : "Sin demanda"}
-                </TableCell>
-
-                {/* ROTACIÓN */}
-
-                <TableCell className="text-right">
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      {item.potentialRotationPercentage}%
-                    </p>
-
-                    <p className="text-[11px] text-slate-400">
-                      {numberFormatter.format(item.potentialRotationUnits)} und.
-                    </p>
-                  </div>
-                </TableCell>
-
-                {/* MOTIVO */}
-
-                <TableCell className="whitespace-normal">
-                  <p className="max-w-[420px] text-xs leading-5 text-slate-500">
-                    {item.reason}
-                  </p>
-                </TableCell>
+                {/*
+                 * NUEVA COLUMNA
+                 */}
+                <TableHead className="min-w-[160px] text-right">
+                  Seguimiento
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
 
-        {/* PAGINACIÓN */}
+            <TableBody>
+              {items.map((item) => (
+                <TableRow key={item.id}>
+                  {/* ====================================================
+                        SKU
+                    ===================================================== */}
+
+                  <TableCell className="min-w-[240px]">
+                    <p className="font-semibold text-slate-900">{item.sku}</p>
+
+                    <p className="mt-0.5 max-w-[280px] truncate text-xs text-slate-500">
+                      {item.description}
+                    </p>
+
+                    <div className="mt-1 flex flex-wrap gap-x-2 text-[11px] text-slate-400">
+                      {item.category ? <span>{item.category}</span> : null}
+
+                      {item.brand ? (
+                        <>
+                          <span>•</span>
+
+                          <span>{item.brand}</span>
+                        </>
+                      ) : null}
+                    </div>
+                  </TableCell>
+
+                  {/* ====================================================
+                        IRI
+                    ===================================================== */}
+
+                  <TableCell>
+                    <span className={`text-lg font-bold ${iriClass(item.iri)}`}>
+                      {item.iri}
+                    </span>
+
+                    <span className="text-xs text-slate-400">/100</span>
+                  </TableCell>
+
+                  {/* ====================================================
+                        RECOMENDACIÓN
+                    ===================================================== */}
+
+                  <TableCell>
+                    <ActionBadge action={item.action} />
+                  </TableCell>
+
+                  {/* ====================================================
+                        STOCK
+                    ===================================================== */}
+
+                  <TableCell className="text-right font-medium">
+                    {numberFormatter.format(item.stockQuantity)}
+                  </TableCell>
+
+                  {/* ====================================================
+                        VALOR
+                    ===================================================== */}
+
+                  <TableCell className="text-right font-semibold">
+                    {currencyFormatter.format(item.stockValue)}
+                  </TableCell>
+
+                  {/* ====================================================
+                        COBERTURA
+                    ===================================================== */}
+
+                  <TableCell className="text-right">
+                    {item.coverageDays !== null
+                      ? `${numberFormatter.format(item.coverageDays)} días`
+                      : "Sin demanda"}
+                  </TableCell>
+
+                  {/* ====================================================
+                        ROTACIÓN
+                    ===================================================== */}
+
+                  <TableCell className="text-right">
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {item.potentialRotationPercentage}%
+                      </p>
+
+                      <p className="text-[11px] text-slate-400">
+                        {numberFormatter.format(item.potentialRotationUnits)}{" "}
+                        und.
+                      </p>
+                    </div>
+                  </TableCell>
+
+                  {/* ====================================================
+                        MOTIVO
+                    ===================================================== */}
+
+                  <TableCell className="whitespace-normal">
+                    <p className="max-w-[420px] text-xs leading-5 text-slate-500">
+                      {item.reason}
+                    </p>
+                  </TableCell>
+
+                  {/* ====================================================
+                        NUEVO:
+                        DAR SEGUIMIENTO
+                    ===================================================== */}
+
+                  <TableCell className="text-right">
+                    <CreateTrackingDialog
+                      inventoryItemId={item.id}
+                      sku={item.sku}
+                      description={item.description}
+                      recommendationLabel={item.actionLabel}
+                      iri={item.iri}
+                      stockValue={item.stockValue}
+                      companyId={companyId}
+                      from={from}
+                      to={to}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* ================================================================
+            PAGINACIÓN
+        ================================================================= */}
 
         <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-500">

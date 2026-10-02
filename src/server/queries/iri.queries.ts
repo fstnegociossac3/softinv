@@ -28,6 +28,10 @@ import {
   resolveCompanyId,
 } from "@/server/services/authorization.service";
 
+import type { IriSettingsConfig } from "@/lib/settings/types";
+
+import { getCompanySettingsByCompanyId } from "@/server/services/settings.service";
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /*
@@ -77,6 +81,8 @@ export type ResolvedIriFilters = {
   periodDays: number;
 
   opportunityLimit: number;
+
+  iriConfig: IriSettingsConfig;
 };
 
 /*
@@ -177,6 +183,10 @@ async function resolveIriFilters(
     );
   }
 
+  const settings = await getCompanySettingsByCompanyId(companyId);
+
+  const iriConfig = settings.iri;
+
   /*
    * Hoy sin horas.
    */
@@ -208,7 +218,7 @@ async function resolveIriFilters(
    * últimos 90 días.
    */
   const defaultFromDate = new Date(
-    toDate.getTime() - (IRI_ANALYSIS.DEFAULT_DAYS - 1) * DAY_MS,
+    toDate.getTime() - (iriConfig.defaultDays - 1) * DAY_MS,
   );
 
   const fromDate = filters.from
@@ -287,6 +297,8 @@ async function resolveIriFilters(
     periodDays,
 
     opportunityLimit,
+
+    iriConfig,
   };
 }
 
@@ -433,6 +445,8 @@ export async function getIriDashboard(filters: IriFilters = {}): Promise<{
       periodDays: resolvedFilters.periodDays,
 
       opportunityLimit: resolvedFilters.opportunityLimit,
+
+      config: resolvedFilters.iriConfig,
     },
   );
 
@@ -520,6 +534,8 @@ export async function getIriSkuAnalysis(
       periodDays: resolvedFilters.periodDays,
 
       opportunityLimit: resolvedFilters.opportunityLimit,
+
+      config: resolvedFilters.iriConfig,
     },
   );
 

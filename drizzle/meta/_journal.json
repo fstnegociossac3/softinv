@@ -64,6 +64,34 @@
       "when": 1790094887001,
       "tag": "0008_outgoing_nuke",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790108853109,
+      "tag": "0009_marvelous_mauler",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790203880421,
+      "tag": "0010_ancient_living_mummy",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790207448454,
+      "tag": "0011_small_captain_britain",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790365924655,
+      "tag": "0012_fine_wild_pack",
+      "breakpoints": true
     }
   ]
 }

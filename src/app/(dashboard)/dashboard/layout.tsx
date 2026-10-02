@@ -2,11 +2,12 @@ import type { ReactNode } from "react";
 
 import { redirect } from "next/navigation";
 
+import { AdminShell } from "@/components/admin/admin-shell";
 import { UserShell } from "@/components/user/user-shell";
 
 import { requireAuth } from "@/server/services/auth.service";
 
-export default async function UserDashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: ReactNode;
@@ -14,17 +15,25 @@ export default async function UserDashboardLayout({
   const auth = await requireAuth();
 
   /*
-   * Un administrador utiliza
-   * exclusivamente /admin.
-   */
+  |--------------------------------------------------------------------------
+  | ADMINISTRADOR
+  |--------------------------------------------------------------------------
+  */
+
   if (auth.profile.role === "admin") {
-    redirect("/admin");
+    return (
+      <AdminShell fullName={auth.profile.fullName} role={auth.profile.role}>
+        {children}
+      </AdminShell>
+    );
   }
 
   /*
-   * Un usuario normal siempre
-   * debe tener empresa.
-   */
+  |--------------------------------------------------------------------------
+  | USUARIO
+  |--------------------------------------------------------------------------
+  */
+
   if (!auth.company) {
     redirect("/login");
   }

@@ -17,6 +17,8 @@ import { requireAuth } from "@/server/services/auth.service";
 
 import { requirePermission } from "@/server/services/authorization.service";
 
+import { getCompanySettingsByCompanyId } from "@/server/services/settings.service";
+
 /*
 |--------------------------------------------------------------------------
 | ORDENAMIENTO
@@ -207,13 +209,21 @@ export async function getRecommendationsDashboard(
     to: filters.to,
   });
 
+  const settings = await getCompanySettingsByCompanyId(
+    iriResult.filters.companyId,
+  );
+
   /*
   |--------------------------------------------------------------------------
   | CALCULAR RECOMENDACIONES
   |--------------------------------------------------------------------------
   */
 
-  const calculated = calculateRecommendations(iriResult.dashboard.items);
+  const calculated = calculateRecommendations(
+    iriResult.dashboard.items,
+
+    settings.recommendations,
+  );
 
   /*
   |--------------------------------------------------------------------------

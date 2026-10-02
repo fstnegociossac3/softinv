@@ -114,7 +114,7 @@ export function InventoryFilters({
             value={searchParams.get("companyId") ?? "all"}
             onValueChange={(value) =>
               updateParams({
-                companyId: value === "all" ? undefined : value,
+                companyId: !value || value === "all" ? undefined : value,
               })
             }
           >
@@ -144,7 +144,7 @@ export function InventoryFilters({
           value={searchParams.get("category") ?? "all"}
           onValueChange={(value) =>
             updateParams({
-              category: value === "all" ? undefined : value,
+              category: !value || value === "all" ? undefined : value,
             })
           }
         >
@@ -169,7 +169,7 @@ export function InventoryFilters({
           value={searchParams.get("brand") ?? "all"}
           onValueChange={(value) =>
             updateParams({
-              brand: value === "all" ? undefined : value,
+              brand: !value || value === "all" ? undefined : value,
             })
           }
         >
@@ -194,7 +194,7 @@ export function InventoryFilters({
           value={searchParams.get("stock") ?? "all"}
           onValueChange={(value) =>
             updateParams({
-              stock: value === "all" ? undefined : value,
+              stock: !value || value === "all" ? undefined : value,
             })
           }
         >
@@ -217,7 +217,7 @@ export function InventoryFilters({
           value={searchParams.get("status") ?? "all"}
           onValueChange={(value) =>
             updateParams({
-              status: value === "all" ? undefined : value,
+              status: !value || value === "all" ? undefined : value,
             })
           }
         >
@@ -239,6 +239,10 @@ export function InventoryFilters({
         <Select
           value={sortValue}
           onValueChange={(value) => {
+            if (!value) {
+              return;
+            }
+
             const [sort, direction] = value.split(":");
 
             updateParams({
