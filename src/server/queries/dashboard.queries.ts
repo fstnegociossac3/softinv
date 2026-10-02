@@ -172,6 +172,28 @@ function buildMonthLabel(monthKey: string) {
   return `${label.charAt(0).toUpperCase()}${label.slice(1)} ${year}`;
 }
 
+async function measure<T>(
+  label: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const isDev = process.env.NODE_ENV !== "production";
+
+  if (!isDev) {
+    return fn();
+  }
+
+  const startedAt = performance.now();
+
+  try {
+    return await fn();
+  } finally {
+    const elapsed = performance.now() - startedAt;
+
+    // eslint-disable-next-line no-console
+    console.log(`[perf][dashboard] ${label}: ${elapsed.toFixed(1)}ms`);
+  }
+}
+
 /*
 |--------------------------------------------------------------------------
 | CAPITAL RECUPERADO
@@ -189,26 +211,28 @@ async function loadRecoveredTotal(
 
   to: string,
 ) {
-  const rows = await db
-    .select({
-      recoveredValue: recoveryEvents.recoveredValue,
-    })
-    .from(recoveryEvents)
-    .where(
-      and(
-        eq(recoveryEvents.companyId, companyId),
+  return measure(`recovery.query.${from}_${to}`, async () => {
+    const rows = await db
+      .select({
+        recoveredValue: recoveryEvents.recoveredValue,
+      })
+      .from(recoveryEvents)
+      .where(
+        and(
+          eq(recoveryEvents.companyId, companyId),
 
-        gte(recoveryEvents.recoveryDate, from),
+          gte(recoveryEvents.recoveryDate, from),
 
-        lte(recoveryEvents.recoveryDate, to),
-      ),
+          lte(recoveryEvents.recoveryDate, to),
+        ),
+      );
+
+    return rows.reduce(
+      (total, row) => total + row.recoveredValue,
+
+      0,
     );
-
-  return rows.reduce(
-    (total, row) => total + row.recoveredValue,
-
-    0,
-  );
+  });
 }
 
 /*
